@@ -277,7 +277,8 @@ thread_unblock (struct thread *t)
 
   old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
-  list_push_back (&ready_list, &t->elem);
+//순서를 뒤로 미루는 것이 아니라 순서에 따라 삽입
+  list_insert_ordere(&ready_list, &t -> elem, thread_compare_priority, 0);
   t->status = THREAD_READY;
   intr_set_level (old_level);
 }
@@ -348,7 +349,8 @@ thread_yield (void)
 
   old_level = intr_disable ();
   if (cur != idle_thread) 
-    list_push_back (&ready_list, &cur->elem);
+//마찬가지로 우선순위에 맞춰 삽임
+   list_insert_ordered (&ready_list, &cur -> elem, thread_compare_priority, 0);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -617,6 +619,14 @@ allocate_tid (void)
   lock_release (&tid_lock);
 
   return tid;
+}
+
+bool
+thread_compare_priority(struct list_elem *l, struct list_elem *s, void *aux UNUSED)
+{
+   // 우선순위 비교
+   return list_entry(l, struct thread, elem) -> priority
+      > list_entry(s, struct thread, elem) -> priority;
 }
 
 /* Offset of `stack' member within `struct thread'.
