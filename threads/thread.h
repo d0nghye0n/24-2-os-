@@ -56,7 +56,7 @@ typedef int tid_t;
 
    The upshot of this is twofold:
 
-      1. First, `struct thread' must not be allowed to grow too
+      1. First, `' must not be allowed to grow too
          big.  If it does, then there will not be enough room for
          the kernel stack.  Our base `struct thread' is only a
          few bytes in size.  It probably should stay well under 1
@@ -82,6 +82,11 @@ typedef int tid_t;
    blocked state is on a semaphore wait list. */
 struct thread
   {
+    int init_priority
+
+    struct lock *wait_on_lock;
+    struct list donations;
+    struct list_elem donation_elem;
     /* Owned by thread.c. */
     tid_t tid;                          /* Thread identifier. */
     enum thread_status status;          /* Thread state. */
