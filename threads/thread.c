@@ -86,6 +86,15 @@ static tid_t allocate_tid (void);
    It is not safe to call thread_current() until this function
    finishes. */
 void
+thread_test_preemption (void)
+{
+   if (!list_empty (&ready_list) && 
+   thread_current ()->priority < 
+   list_entry (list_front (&ready_list), struct thread, elem)->priority)
+      thread_yield ();
+}
+
+void
 thread_init (void) 
 {
   ASSERT (intr_get_level () == INTR_OFF);
@@ -240,6 +249,7 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
+  thread_test_preemption ();
 
   return tid;
 }
@@ -378,6 +388,7 @@ void
 thread_set_priority (int new_priority) 
 {
   thread_current ()->priority = new_priority;
+  thread_test_preemption ();
 }
 
 /* Returns the current thread's priority. */
